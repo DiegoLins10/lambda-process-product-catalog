@@ -1,0 +1,40 @@
+
+**Prompt para o Chat:**
+
+Assuma o papel de um Arquiteto de Software AWS. Quero criar uma função Lambda em .NET 8 para processar arquivos de catálogo de produtos de fornecedores.
+
+Contexto de Negócio: E-commerce (Ingestão de Catálogo de Produtos)
+Um fornecedor parceiro (Marketplace) envia um arquivo `.xlsx` diariamente para um bucket S3 com as atualizações de seus produtos (novos produtos, mudanças de preço ou descrição).
+
+Fluxo de Trabalho (Workflow):
+1.  Um arquivo (ex: `produtos_fornecedor_XYZ.xlsx`) é salvo no bucket S3 `catalogo-produtos-uploads`.
+2.  O S3 dispara um evento `ObjectCreated` para o AWS EventBridge.
+3.  O EventBridge aciona nossa função Lambda.
+
+Requisitos da Lambda (.NET 8):
+1.  Entrada (Trigger): Deve ser configurada para receber o evento `ObjectCreated` vindo do AWS EventBridge.
+2.  Processamento:
+    a. A Lambda deve extrair o nome do bucket e a chave do objeto (nome do arquivo) do evento.
+    b. Baixar o arquivo `.xlsx` do S3.
+    c. Ler o `.xlsx` usando a melhor biblioteca para xlsx e criar um helper.
+3.  Saída (Output): Salvar cada produto em uma tabela DynamoDB. A operação deve ser um "Upsert" (ou seja, se o `SKU` já existir, ele deve ser atualizado; se for novo, deve ser criado).
+
+Definições de Dados:
+
+A. Estrutura do .xlsx (Colunas):
+`SKU`, `NomeProduto`, `Descricao`, `Preco`, `Categoria`
+
+B. Modelo C# (POCO) - `ProdutoCatalogo.cs`:
+(Defina uma classe C# que mapeie essas colunas. Use `decimal` ou `double` para o Preço. Use atributos da lib escolhida para o mapeamento, se necessário).
+
+C. Tabela DynamoDB - `CatalogoProdutos`:
+* Chave de Partição (PK): `SKU` (String)
+
+Seu Papel (Entregáveis):
+1.  Forneça o código-fonte completo em C# para o `FunctionHandler` da Lambda, incluindo a lógica para ler o evento, baixar o arquivo do S3, processar o xlsx com `xlsxHelper` e salvar os itens no DynamoDB (usando `PutItemAsync`, que realiza o "Upsert" naturalmente).
+2.  Forneça a classe de modelo C# `ProdutoCatalogo`.
+3.  Explique brevemente quais permissões (IAM Role) a Lambda precisará para executar essa tarefa (Ex: acesso ao S3 e ao DynamoDB).
+4.  Faça a separação devida das pastas do projeto. Crie services, não faça a logica toda dentro da function.
+5.  Use os melhores padrões de codigo para a aplicação inclusive interfaces.
+
+obs. Antes me mande a estrutura de pastas para ver se eu concordo.
