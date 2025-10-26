@@ -13,8 +13,8 @@
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="2.5.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.9.1" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.7.14" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
   </ItemGroup>
 </Project>
