@@ -101,12 +101,29 @@ dotnet build
 
 3. Teste a Lambda com **AWS Lambda Test Tool** usando um evento simulado:
 
+Quando um arquivo é adicionado ao bucket `catalogo-produtos-uploads`, o EventBridge envia um evento assim:
+
 ```json
 {
+  "version": "0",
+  "id": "12345678-1234-1234-1234-123456789012",
+  "detail-type": "Object Created",
+  "source": "aws.s3",
+  "account": "123456789012",
+  "time": "2025-10-25T23:59:00Z",
+  "region": "sa-east-1",
+  "resources": [
+    "arn:aws:s3:::catalogo-produtos-uploads"
+  ],
   "detail": {
-    "value": {
-      "bucket_name": "catalogo-produtos-uploads",
-      "file_name": "produtos_fornecedor_XYZ.xlsx"
+    "bucket": {
+      "name": "catalogo-produtos-uploads"
+    },
+    "object": {
+      "key": "produtos_fornecedor_XYZ.xlsx",
+      "size": 1024,
+      "eTag": "abc123def456ghi789",
+      "sequencer": "0055AED6DCD90281E5"
     }
   }
 }
