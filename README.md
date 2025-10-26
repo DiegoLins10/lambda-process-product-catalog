@@ -128,6 +128,7 @@ Quando um arquivo é adicionado ao bucket `catalogo-produtos-uploads`, o EventBr
   }
 }
 ```
+> A Lambda `ProductCatalogLambda` vai extrair `bucket.name` e `object.key` desse payload para processar o arquivo XLSX.
 
 4. Faça deploy para **AWS Lambda** pelo Visual Studio ou CLI da AWS.
 
@@ -208,39 +209,6 @@ aws s3 ls s3://catalogo-produtos-uploads
 
 ---
 
-### 📄 Exemplo de Evento EventBridge (S3 ObjectCreated)
-
-Quando um arquivo é adicionado ao bucket `catalogo-produtos-uploads`, o EventBridge envia um evento assim:
-
-```json
-{
-  "version": "0",
-  "id": "12345678-1234-1234-1234-123456789012",
-  "detail-type": "Object Created",
-  "source": "aws.s3",
-  "account": "123456789012",
-  "time": "2025-10-25T23:59:00Z",
-  "region": "sa-east-1",
-  "resources": [
-    "arn:aws:s3:::catalogo-produtos-uploads"
-  ],
-  "detail": {
-    "bucket": {
-      "name": "catalogo-produtos-uploads"
-    },
-    "object": {
-      "key": "produtos_fornecedor_XYZ.xlsx",
-      "size": 1024,
-      "eTag": "abc123def456ghi789",
-      "sequencer": "0055AED6DCD90281E5"
-    }
-  }
-}
-```
-
-> A Lambda `ProductCatalogLambda` vai extrair `bucket.name` e `object.key` desse payload para processar o arquivo XLSX.
-
----
 
 ## 📦 GitHub Actions – CI/CD
 
