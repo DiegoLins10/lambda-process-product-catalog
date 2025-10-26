@@ -3,6 +3,8 @@ using Amazon.S3;
 using Microsoft.Extensions.DependencyInjection;
 using ProductCatalogLambda.Aws;
 using ProductCatalogLambda.Interfaces;
+using ProductCatalogLambda.Services;
+using ProductCatalogLambda.Services.Implementations;
 
 namespace ProductCatalogLambda.Extensions;
 
@@ -19,10 +21,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IDynamoService, DynamoService>();
 
         // Helper XLSX
-        services.AddSingleton<XlsxHelper>();
+        services.AddSingleton<IProductExcelReader, ProductExcelReader>();
 
         // Processing Service
-        services.AddSingleton<ProductProcessingService>();
+        services.AddSingleton<IProductProcessingService, ProductProcessingService>();
 
         return services;
     }
