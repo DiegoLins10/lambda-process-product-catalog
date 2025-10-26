@@ -116,6 +116,82 @@ dotnet build
 
 ---
 
+## **Sessão de comandos S3**
+
+### **1️⃣ Criar o bucket**
+
+```bash
+aws s3 mb s3://catalogo-produtos-uploads --region sa-east-1
+```
+
+* Cria o bucket na região `sa-east-1`.
+* Nome deve ser **único globalmente**.
+
+---
+
+### **2️⃣ Verificar se o bucket foi criado**
+
+```bash
+aws s3 ls
+```
+
+* Lista todos os buckets da sua conta.
+* Você deve ver `catalogo-produtos-uploads` na lista.
+
+---
+
+### **3️⃣ Dar permissão total para teste local (opcional)**
+
+> Atenção: isso é apenas para teste local. Em produção, restrinja ao Lambda/usuário específico.
+
+```bash
+aws s3api put-bucket-policy --bucket catalogo-produtos-uploads --policy '{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": { "AWS": "*" },
+      "Action": "s3:*",
+      "Resource": [
+        "arn:aws:s3:::catalogo-produtos-uploads",
+        "arn:aws:s3:::catalogo-produtos-uploads/*"
+      ]
+    }
+  ]
+}'
+```
+
+---
+
+### **4️⃣ Testar acesso ao bucket**
+
+```bash
+aws s3 ls s3://catalogo-produtos-uploads
+```
+
+* Deve listar objetos do bucket (vazio se recém-criado).
+* Se funcionar → seu Lambda local **pode acessar o bucket**.
+
+---
+
+### **5️⃣ Enviar um arquivo de teste (opcional)**
+
+```bash
+aws s3 cp arquivo-teste.txt s3://catalogo-produtos-uploads/
+```
+
+* Envia `arquivo-teste.txt` para o bucket.
+* Depois, verifique:
+
+```bash
+aws s3 ls s3://catalogo-produtos-uploads
+```
+
+* Você deve ver `arquivo-teste.txt`.
+
+---
+
+
 ## 📦 GitHub Actions – CI/CD
 
 * Workflow sugerido para **build**, **teste unitário** e **deploy Lambda**.
