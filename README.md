@@ -4,7 +4,6 @@
 ![AWS Lambda](https://img.shields.io/badge/AWS%20Lambda-Managed-orange?logo=amazonaws)
 ![DynamoDB](https://img.shields.io/badge/DynamoDB-NoSQL-green?logo=amazondynamodb)
 ![S3](https://img.shields.io/badge/S3-Storage-yellow?logo=amazons3)
-![GitHub Actions](https://img.shields.io/github/workflow/status/SeuUsuario/lambda-process-product-catalog/CI?logo=github)
 ![Coverage](https://img.shields.io/badge/Coverage-0%25-lightgrey)
 
 Lambda em **.NET 8** que processa arquivos `.xlsx` enviados por fornecedores, atualizando produtos em **DynamoDB** via **upsert**, acionada por eventos de **S3** através do **EventBridge**.
