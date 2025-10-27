@@ -25,10 +25,10 @@ public class Function
         _processingService = serviceProvider.GetRequiredService<IProductProcessingService>();
     }
 
-    //public Function(IProductProcessingService processingService)
-    //{
-    //    _processingService = processingService;
-    //}
+    public Function(IProductProcessingService processingService)
+    {
+        _processingService = processingService;
+    }
 
     public async Task<ProcessResponse> FunctionHandler(dynamic eventBridgeEvent, ILambdaContext context)
     {
