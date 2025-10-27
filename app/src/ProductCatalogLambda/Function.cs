@@ -14,20 +14,23 @@ public class Function
 {
     private readonly IProductProcessingService _processingService;
 
-    public Function()
+    // Construtor default para produção
+    public Function() : this(BuildDefaultProcessingService())
     {
-        // Configuração DI
-        var serviceCollection = new ServiceCollection();
-        serviceCollection.AddProductCatalogServices();
-
-        var serviceProvider = serviceCollection.BuildServiceProvider();
-
-        _processingService = serviceProvider.GetRequiredService<IProductProcessingService>();
     }
 
+    // Construtor para injeção de dependência (testes)
     public Function(IProductProcessingService processingService)
     {
-        _processingService = processingService;
+        _processingService = processingService ?? throw new ArgumentNullException(nameof(processingService));
+    }
+
+    private static IProductProcessingService BuildDefaultProcessingService()
+    {
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddProductCatalogServices();
+        return serviceCollection.BuildServiceProvider()
+                                .GetRequiredService<IProductProcessingService>();
     }
 
     public async Task<ProcessResponse> FunctionHandler(dynamic eventBridgeEvent, ILambdaContext context)

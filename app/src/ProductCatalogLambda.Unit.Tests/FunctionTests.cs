@@ -1,24 +1,20 @@
 ﻿using Amazon.Lambda.Core;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using ProductCatalogLambda.Interfaces;
 using System.Text.Json;
+using Xunit;
 
 namespace ProductCatalogLambda.Unit.Tests
 {
     public class FunctionTests
     {
         private readonly Mock<IProductProcessingService> _processingServiceMock;
-        private readonly Mock<IS3Service> _s3Mock;
-        private readonly Mock<IDynamoService> _dynamoMock;
         private readonly Mock<ILambdaContext> _contextMock;
         private readonly Mock<ILambdaLogger> _loggerMock;
 
         public FunctionTests()
         {
             _processingServiceMock = new Mock<IProductProcessingService>();
-            _s3Mock = new Mock<IS3Service>();
-            _dynamoMock = new Mock<IDynamoService>();
             _contextMock = new Mock<ILambdaContext>();
             _loggerMock = new Mock<ILambdaLogger>();
 
@@ -27,26 +23,8 @@ namespace ProductCatalogLambda.Unit.Tests
 
         private Function CreateFunctionWithMockedService()
         {
-            // Injeta manualmente o mock de IProductProcessingService
-            var services = new ServiceCollection();
-            services.AddSingleton(_processingServiceMock.Object);
-            services.AddSingleton(_s3Mock.Object);
-            services.AddSingleton(_dynamoMock.Object);
-            var provider = services.BuildServiceProvider();
-
-            // Cria instância da Function usando o mock
-            return new FunctionForTest(provider.GetRequiredService<IProductProcessingService>());
-        }
-
-        // Classe interna herdando de Function para permitir injeção direta no construtor
-        private class FunctionForTest : Function
-        {
-            public FunctionForTest(IProductProcessingService service)
-            {
-                typeof(Function)
-                    .GetField("_processingService", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-                    .SetValue(this, service);
-            }
+            // Injeta diretamente o mock no construtor
+            return new Function(_processingServiceMock.Object);
         }
 
         [Fact]
