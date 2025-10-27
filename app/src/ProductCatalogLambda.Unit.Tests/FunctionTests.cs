@@ -9,12 +9,16 @@ namespace ProductCatalogLambda.Unit.Tests
     public class FunctionTests
     {
         private readonly Mock<IProductProcessingService> _processingServiceMock;
+        private readonly Mock<IS3Service> _s3Mock;
+        private readonly Mock<IDynamoService> _dynamoMock;
         private readonly Mock<ILambdaContext> _contextMock;
         private readonly Mock<ILambdaLogger> _loggerMock;
 
         public FunctionTests()
         {
             _processingServiceMock = new Mock<IProductProcessingService>();
+            _s3Mock = new Mock<IS3Service>();
+            _dynamoMock = new Mock<IDynamoService>();
             _contextMock = new Mock<ILambdaContext>();
             _loggerMock = new Mock<ILambdaLogger>();
 
@@ -26,6 +30,8 @@ namespace ProductCatalogLambda.Unit.Tests
             // Injeta manualmente o mock de IProductProcessingService
             var services = new ServiceCollection();
             services.AddSingleton(_processingServiceMock.Object);
+            services.AddSingleton(_s3Mock.Object);
+            services.AddSingleton(_dynamoMock.Object);
             var provider = services.BuildServiceProvider();
 
             // Cria instância da Function usando o mock
