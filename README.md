@@ -27,20 +27,21 @@ Este projeto automatiza a ingestão de catálogos de produtos, garantindo que no
 
 ```
 ProductCatalogLambda/
-├─ FunctionHandler.cs              # Entry point da Lambda 🚀
-├─ Extensions/
-│   └─ ServiceCollectionExtensions.cs  # Configuração de DI 🔧
-├─ Models/
-│   └─ Product.cs                  # POCO do produto 🏷️
-├─ Services/
-│   ├─ AWS/
-│   │   ├─ Interfaces/             # IS3Service, IDynamoService 🛠️
-│   │   └─ Implementations/        # S3Service, DynamoService 📦
-│   └─ Implementations/
-│       ├─ XlsxHelper.cs           # Leitura XLSX 📄
-│       └─ ProductProcessingService.cs # Processamento ⚡
-├─ ProductCatalogLambda.csproj
-└─ aws-lambda-tools-defaults.json
+├─ Aws/                     # Clientes de serviços AWS (ex: S3, DynamoDB) ☁️
+├─ Extensions/              # Métodos de extensão (ex: Injeção de Dependência) 🔧
+├─ Helpers/                 # Classes utilitárias 🛠️
+├─ Interfaces/              # Contratos das abstrações (ex: IProductProcessingService) 📜
+├─ Models/                  # POCOs e DTOs (ex: Product) 🏷️
+├─ Services/                # Lógica de negócio ⚡
+├─ aws-lambda-tools-defaults.json # Configurações de deploy da Lambda ⚙️
+├─ Function.cs              # Entry point da Lambda 🚀
+└─ Readme.md                # Este arquivo 📄
+
+ProductCatalogLambda.Unit.Tests/
+├─ Aws/                     # Testes de serviços AWS 🧪
+├─ Helpers/                 # Helpers de teste 🛠️
+├─ Services/                # Testes da lógica de negócio 🧪
+└─ FunctionTests.cs         # Testes do handler da Lambda 🎯
 ```
 
 ---
