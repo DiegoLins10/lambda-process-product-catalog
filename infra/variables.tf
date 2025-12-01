@@ -5,7 +5,7 @@ variable "region" {
 
 variable "lambda_name" {
   type        = string
-  default     = "product-catalog-lambda"
+  default     = "lambda-process-product-catalog"
 }
 
 variable "project" {
