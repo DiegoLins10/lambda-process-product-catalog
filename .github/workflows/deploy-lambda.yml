@@ -1,0 +1,81 @@
+name: Deploy Lambda Terraform
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  id-token: write     # Necessário para OIDC com AWS
+  contents: read
+
+jobs:
+  deploy:
+    name: Build & Deploy Lambda (.NET 8)
+    runs-on: ubuntu-latest
+
+    steps:
+      # -----------------------------
+      # 1. Checar repositório
+      # -----------------------------
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # -----------------------------
+      # 2. Setup .NET 8
+      # -----------------------------
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # -----------------------------
+      # 3. Build / Publish Lambda
+      # -----------------------------
+      - name: Publish Lambda (.NET 8)
+        working-directory: ./app/src/ProductCatalogLambda
+        run: |
+          dotnet restore
+          dotnet publish -c Release
+
+      # -----------------------------
+      # 4. Configurar AWS via OIDC
+      # -----------------------------
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-session-name: github-oidc
+          aws-region: us-east-1
+
+      # -----------------------------
+      # 5. Instalar Terraform
+      # -----------------------------
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      # -----------------------------
+      # 6. Terraform Init
+      # -----------------------------
+      - name: Terraform Init
+        working-directory: ./infra
+        run: terraform init
+
+      # -----------------------------
+      # 7. Terraform Plan (para PRs)
+      # -----------------------------
+      - name: Terraform Plan
+        if: github.event_name == 'pull_request'
+        working-directory: ./infra
+        run: terraform plan -no-color
+
+      # -----------------------------
+      # 8. Terraform Apply (somente no main)
+      # -----------------------------
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        working-directory: ./infra
+        run: terraform apply -auto-approve
