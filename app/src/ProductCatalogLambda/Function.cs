@@ -1,11 +1,11 @@
 using Amazon.Lambda.Core;
 using Microsoft.Extensions.DependencyInjection;
 using ProductCatalogLambda.Extensions;
+using ProductCatalogLambda.Helpers;
 using ProductCatalogLambda.Interfaces;
 using ProductCatalogLambda.Models;
 using System.Text.Json;
 
-// Assembly attribute para habilitar logs do Lambda
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
 namespace ProductCatalogLambda;
@@ -13,16 +13,21 @@ namespace ProductCatalogLambda;
 public class Function
 {
     private readonly IProductProcessingService _processingService;
+    private readonly EventBridgeS3EventParser _eventParser;
 
-    // Construtor default para produção
-    public Function() : this(BuildDefaultProcessingService())
+    public Function() : this(BuildDefaultProcessingService(), new EventBridgeS3EventParser())
     {
     }
 
-    // Construtor para injeção de dependência (testes)
     public Function(IProductProcessingService processingService)
+        : this(processingService, new EventBridgeS3EventParser())
+    {
+    }
+
+    public Function(IProductProcessingService processingService, EventBridgeS3EventParser eventParser)
     {
         _processingService = processingService ?? throw new ArgumentNullException(nameof(processingService));
+        _eventParser = eventParser ?? throw new ArgumentNullException(nameof(eventParser));
     }
 
     private static IProductProcessingService BuildDefaultProcessingService()
@@ -37,71 +42,27 @@ public class Function
     {
         try
         {
-            // Serializa o dynamic para JSON
             string json = JsonSerializer.Serialize(eventBridgeEvent);
-
-            // Desserializa para JsonDocument para acessar de forma segura
             using JsonDocument doc = JsonDocument.Parse(json);
-            JsonElement root = doc.RootElement;
 
-            // Verifica se é EventBridge
-            if (!root.TryGetProperty("source", out var sourceProp) ||
-                !root.TryGetProperty("detail-type", out var detailTypeProp))
+            if (!_eventParser.TryParse(doc.RootElement, out var eventInfo, out var errorMessage))
             {
-                context.Logger.LogWarning("Evento não é EventBridge. Ignorado.");
-                return new ProcessResponse
-                {
-                    StatusCode = 400,
-                    Status = "BadRequest",
-                    Message = "Evento não é EventBridge. Ignorado."
-                };
+                context.Logger.LogWarning(errorMessage);
+                return ProcessResponseFactory.BadRequest(errorMessage);
             }
 
-            string source = sourceProp.GetString() ?? "";
-            string detailType = detailTypeProp.GetString() ?? "";
+            context.Logger.LogLine($"Evento EventBridge detectado: source={eventInfo.Source}, detail-type={eventInfo.DetailType}");
+            context.Logger.LogLine($"Processando arquivo S3: Bucket={eventInfo.BucketName}, Key={eventInfo.Key}");
 
-            context.Logger.LogLine($"Evento EventBridge detectado: source={source}, detail-type={detailType}");
+            await _processingService.ProcessFileAsync(eventInfo.BucketName, eventInfo.Key);
 
-            // Se não for s3 nao processa.
-            if (source != "aws.s3" || !detailType.Contains("Object Created", StringComparison.OrdinalIgnoreCase))
-            {
-                context.Logger.LogWarning("Evento EventBridge não é S3 ObjectCreated, ignorado");
-
-                return new ProcessResponse
-                {
-                    StatusCode = 400,
-                    Status = "BadRequest",
-                    Message = "Evento EventBridge não é S3 ObjectCreated, ignorado"
-                };
-            }
-
-            // Processa o arquivo recebido.
-            var detail = root.GetProperty("detail");
-            string bucketName = detail.GetProperty("bucket").GetProperty("name").GetString();
-            string key = detail.GetProperty("object").GetProperty("key").GetString();
-
-            context.Logger.LogLine($"Processando arquivo S3: Bucket={bucketName}, Key={key}");
-            await _processingService.ProcessFileAsync(bucketName, key);
-
-            context.Logger.LogInformation($"Arquivo processado com sucesso");
-            return new ProcessResponse
-            {
-                StatusCode = 201,
-                Status = "OK",
-                Message = "Arquivo processado com sucesso",
-                Sucess = true
-            };
+            context.Logger.LogInformation("Arquivo processado com sucesso");
+            return ProcessResponseFactory.Success("Arquivo processado com sucesso");
         }
         catch (Exception ex)
         {
             context.Logger.LogError($"Erro durante processamento: {ex.Message}");
-            return new ProcessResponse
-            {
-                StatusCode = 500,
-                Status = "Error",
-                Message = $"Erro no processamento: {ex.Message}",
-                Sucess = false
-            };
+            return ProcessResponseFactory.Error($"Erro no processamento: {ex.Message}");
         }
     }
 }

@@ -221,7 +221,7 @@ aws s3 ls s3://catalogo-produtos-uploads
 ## 🔧 Próximos Passos
 
 * [x] 🔄 Logging estruturado com **CloudWatch**
-* [ ] 🔒 Configurar IAM Role mínima (S3 + DynamoDB)
+* [x] 🔒 Configurar IAM Role mínima (S3 + DynamoDB)
 * [x] 🧪 Adicionar testes unitários e de integração
 * [x] 📑 Criar IAC para a Lambda
 * [x] 🔀 Melhorar tratamento de erros e validações de dados
