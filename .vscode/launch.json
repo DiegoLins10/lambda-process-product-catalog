@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Mock Lambda Test Tool (VS2022 style)",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${env:USERPROFILE}\\.dotnet\\tools\\dotnet-lambda-test-tool-8.0.exe",
+      "args": [
+        "--port",
+        "5050"
+      ],
+      "cwd": "${workspaceFolder}/app/src/ProductCatalogLambda/bin/Debug/net8.0",
+      "preLaunchTask": "build-lambda-debug",
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "justMyCode": true,
+      "env": {
+        "AWS_PROFILE": "default",
+        "AWS_REGION": "sa-east-1"
+      }
+    }
+  ]
+}
